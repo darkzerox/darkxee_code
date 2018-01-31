@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Darkxee Code</title>
+</head>
+
+<body>
+
+  <div class="contener">
+    <h1>Darkxee Code</h1>
+    <div class="col50">
+      <input type="text" id="encode">
+      <button id="gen">ENCODE</button>
+      <textarea class="encode-output"></textarea>
+    </div>
+    <div class="col50">
+      <input type="text" id="decode">
+      <button id="dec">DECODE</button>
+      <textarea class="decode-output"></textarea>
+    </div>
+
+  </div>
+
+
+</body>
+
+<style lang="css">
+  body * {
+    box-sizing: border-box;
+  }
+
+  h1 {
+    text-align: center;
+  }
+
+  .col50 {
+    width: 50%;
+    float: left;
+    padding: 15px;
+  }
+
+  .contener {
+    max-width: 600px;
+    margin: auto;
+    border: solid 1px #ddd;
+    display: table;
+    width: 100%;
+  }
+
+  textarea {
+    width: 100%;
+    min-height: 300px;
+    margin-top: 15px;
+    font-size: 16px;
+  }
+</style>
+
+<script src="https://code.jquery.com/jquery-3.2.1.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4="
+  crossorigin="anonymous"></script>
+<script>
+  function fromRoman(str) {
+    var result = 0;
+    // the result is now a number, not a string
+    var decimal = [1000, 900, 500, 400, 100, 90, 50, 40, 10, 9, 5, 4, 1];
+    var roman = ["M", "CM", "D", "CD", "C", "XC", "L", "XL", "X", "IX", "V", "IV", "I"];
+    for (var i = 0; i <= decimal.length; i++) {
+      while (str.indexOf(roman[i]) === 0) {        
+        result += decimal[i];        
+        str = str.replace(roman[i], '');        
+      }
+    }
+    return result;
+  }
+
+  function toRoman(num) {
+    var result = '';
+    var decimal = [1000, 900, 500, 400, 100, 90, 50, 40, 10, 9, 5, 4, 1];
+    var roman = ["M", "CM", "D", "CD", "C", "XC", "L", "XL", "X", "IX", "V", "IV", "I"];
+    for (var i = 0; i <= decimal.length; i++) {
+      while (num % decimal[i] < num) {
+        result += roman[i];
+        num -= decimal[i];
+      }
+    }
+    return result;
+  }
+
+
+  function dzx_decode(code) {
+    var encodeArr = code.replace(/\X/g, ' X').replace(/\I/g, ' I').replace(/\V/g, ' V');
+    // console.log(encodeArr);
+    encodeArr = encodeArr.split(' ');
+    // console.log(encodeArr);
+    var txt = "";
+    $.each(encodeArr, function (i, val) {
+      // console.log(val);
+      if (val != '') {
+        for (let index = 0; index < val.length; index++) {
+          var isHex = fromRoman(val.toUpperCase()) + 64;
+          isHex = String.fromCharCode(isHex);
+        }
+        txt += isHex;
+      }
+      if (val == "") {
+        txt += " ";
+      }
+    });
+    return txt;
+  }
+
+  function dzx_encode(str) {
+    var toEncode  = '';
+    for (let i = 0; i < str.length; i++) {
+      var to_asscii = str[i].toUpperCase().charCodeAt(0)-64;
+      var toDZX = toRoman(to_asscii);
+      toDZX = toDZX.toLowerCase();
+      toDZX = toDZX.charAt(0).toUpperCase() + toDZX.slice(1);          
+      toEncode += toDZX;
+      if (toDZX == ""){
+        toEncode+= " ";
+      }
+    }
+    return toEncode;
+
+  }
+
+
+  $('#decode').keypress(function (e) {
+    if (e.which == 13) {
+      $('#dec').click();
+    }
+  });
+  $('#dec').click(function () {
+    var de = $('#decode').val();
+    // console.log(enc);
+    $('.decode-output').text(dzx_decode(de));
+
+  })
+
+  $('#encode').keypress(function (e) {
+    if (e.which == 13) {
+      $('#gen').click();
+    }
+  });
+  $('#gen').click(function () {
+    var enc = $('#encode').val();
+    // console.log(enc);
+    $('.encode-output').text(dzx_encode(enc));
+
+  })
+
+
+
+
+</script>
+
+
+</html>
