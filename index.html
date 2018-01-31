@@ -12,6 +12,7 @@
 
   <div class="contener">
     <h1>Darkxee Code</h1>
+    <p>Convert text to Darkxee Code. Ex. Darkxee =&gt; IvIXviiiXiXxivVV </p>
     <div class="col50">
       <input type="text" id="encode">
       <button id="gen">ENCODE</button>
@@ -37,6 +38,10 @@
     text-align: center;
   }
 
+  p {
+    padding-left: 15px;
+  }
+
   .col50 {
     width: 50%;
     float: left;
@@ -57,10 +62,11 @@
     margin-top: 15px;
     font-size: 16px;
   }
+
   .version {
     text-align: right;
     padding: 10px;
-}
+  }
 </style>
 
 <script src="https://code.jquery.com/jquery-3.2.1.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4="
@@ -72,9 +78,9 @@
     var decimal = [1000, 900, 500, 400, 100, 90, 50, 40, 10, 9, 5, 4, 1];
     var roman = ["M", "CM", "D", "CD", "C", "XC", "L", "XL", "X", "IX", "V", "IV", "I"];
     for (var i = 0; i <= decimal.length; i++) {
-      while (str.indexOf(roman[i]) === 0) {        
-        result += decimal[i];        
-        str = str.replace(roman[i], '');        
+      while (str.indexOf(roman[i]) === 0) {
+        result += decimal[i];
+        str = str.replace(roman[i], '');
       }
     }
     return result;
@@ -117,15 +123,15 @@
   }
 
   function dzx_encode(str) {
-    var toEncode  = '';
+    var toEncode = '';
     for (let i = 0; i < str.length; i++) {
-      var to_asscii = str[i].toUpperCase().charCodeAt(0)-64;
+      var to_asscii = str[i].toUpperCase().charCodeAt(0) - 64;
       var toDZX = toRoman(to_asscii);
       toDZX = toDZX.toLowerCase();
-      toDZX = toDZX.charAt(0).toUpperCase() + toDZX.slice(1);          
+      toDZX = toDZX.charAt(0).toUpperCase() + toDZX.slice(1);
       toEncode += toDZX;
-      if (toDZX == ""){
-        toEncode+= " ";
+      if (toDZX == "") {
+        toEncode += " ";
       }
     }
     return toEncode;
@@ -156,10 +162,6 @@
     $('.encode-output').text(dzx_encode(enc));
 
   })
-
-
-
-
 </script>
 
 
