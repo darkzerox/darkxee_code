@@ -12,18 +12,26 @@
 
   <div class="contener">
     <h1>Darkxee Code</h1>
-    <p>Convert text to Darkxee Code. Ex. Darkxee =&gt; IvIXviiiXiXxivVV <br/>English only !!</p>
-    <div class="col50">
-      <input type="text" id="encode">
-      <button id="gen">ENCODE</button>
-      <textarea class="encode-output"></textarea>
+    <p>Convert text to Darkxee Code. Ex. Darkxee =&gt; LxviiiLxvLxxxiiLxxvLxxxviiiLxixLxixXxxii
+      <br/>All Language !!</p>
+    <div class="code_convert">
+      <div class="col">
+        <input type="text" id="encode">
+        <button id="gen">ENCODE</button>
+        <p class="encode-output"></p>
+      </div>
+      <div class="arrow">
+        <button class="arrow-encode">
+          <<</button>
+            <button class="arrow-decode">>></button>
+      </div>
+      <div class="col">
+        <input type="text" id="decode">
+        <button id="dec">DECODE</button>
+        <p class="decode-output"></p>
+      </div>
     </div>
-    <div class="col50">
-      <input type="text" id="decode">
-      <button id="dec">DECODE</button>
-      <textarea class="decode-output"></textarea>
-    </div>
-    <div class="version">V.1.1</div>
+    <div class="version">V.2.0</div>
   </div>
 
 
@@ -41,22 +49,44 @@
   p {
     padding-left: 15px;
   }
+
   input {
     width: 100%;
   }
 
-  button {
-      float: right;
+  .arrow {
+    display: flex;
+    align-items: center;
   }
 
-  .col50 {
-    width: 50%;
-    float: left;
+  button {
+    float: right;
+    margin: 10px 0;
+  }
+
+  .encode-output,
+  .decode-output {
+    word-break: break-word;
+    border: solid 1px #ddd;
+    padding: 5px;
+    box-sizing: border-box;
+    margin-top: 30px;
+    min-height: 250px;
+    clear: both;
+  }
+
+  .code_convert {
+    display: flex;
+    justify-content: space-between;
+  }
+
+  .col {
     padding: 15px;
+    width: 100%;
   }
 
   .contener {
-    max-width: 600px;
+    max-width: 1200px;
     margin: auto;
     border: solid 1px #ddd;
     display: table;
@@ -108,8 +138,14 @@
 
 
   function dzx_decode(code) {
-    var encodeArr = code.replace(/\X/g, ' X').replace(/\I/g, ' I').replace(/\V/g, ' V');
-    // console.log(encodeArr);
+    var encodeArr = code
+      .replace(/\X/g, ' X')
+      .replace(/\I/g, ' I')
+      .replace(/\V/g, ' V')
+      .replace(/\C/g, ' C')
+      .replace(/\M/g, ' M')
+      .replace(/\L/g, ' L');
+    console.log(encodeArr);
     encodeArr = encodeArr.split(' ');
     // console.log(encodeArr);
     var txt = "";
@@ -117,7 +153,7 @@
       // console.log(val);
       if (val != '') {
         for (let index = 0; index < val.length; index++) {
-          var isHex = fromRoman(val.toUpperCase()) + 64;
+          var isHex = fromRoman(val.toUpperCase());
           isHex = String.fromCharCode(isHex);
         }
         txt += isHex;
@@ -132,8 +168,12 @@
   function dzx_encode(str) {
     var toEncode = '';
     for (let i = 0; i < str.length; i++) {
-      var to_asscii = str[i].toUpperCase().charCodeAt(0) - 64;
+      var to_asscii = str[i].toUpperCase().charCodeAt(0);
+      console.log('to_asscii + ' + to_asscii);
       var toDZX = toRoman(to_asscii);
+      console.log('toDZX ' + toDZX);
+
+
       toDZX = toDZX.toLowerCase();
       toDZX = toDZX.charAt(0).toUpperCase() + toDZX.slice(1);
       toEncode += toDZX;
@@ -169,6 +209,21 @@
     $('.encode-output').text(dzx_encode(enc));
 
   })
+
+  $('.arrow-decode').click(function(){
+    console.log('decode')
+    $('#decode').val($('.encode-output').text());
+    $('#dec').click();
+  });
+
+  $('.arrow-encode').click(function(){
+    console.log('encode')
+    $('#encode').val($('.decode-output').text());
+    $('#gen').click();
+  });
+
+
+
 </script>
 
 
