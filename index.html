@@ -114,7 +114,7 @@
     // the result is now a number, not a string
     var decimal = [1000, 900, 500, 400, 100, 90, 50, 40, 10, 9, 5, 4, 1];
     var roman = ["M", "CM", "D", "CD", "C", "XC", "L", "XL", "X", "IX", "V", "IV", "I"];
-    for (var i = 0; i <= decimal.length; i++) {
+    for (var i = 0; i < decimal.length; i++) {
       while (str.indexOf(roman[i]) === 0) {
         result += decimal[i];
         str = str.replace(roman[i], '');
@@ -127,7 +127,7 @@
     var result = '';
     var decimal = [1000, 900, 500, 400, 100, 90, 50, 40, 10, 9, 5, 4, 1];
     var roman = ["M", "CM", "D", "CD", "C", "XC", "L", "XL", "X", "IX", "V", "IV", "I"];
-    for (var i = 0; i <= decimal.length; i++) {
+    for (var i = 0; i < decimal.length; i++) {
       while (num % decimal[i] < num) {
         result += roman[i];
         num -= decimal[i];
@@ -138,53 +138,71 @@
 
 
   function dzx_decode(code) {
-    var encodeArr = code
-      .replace(/\X/g, ' X')
-      .replace(/\I/g, ' I')
-      .replace(/\V/g, ' V')
-      .replace(/\C/g, ' C')
-      .replace(/\M/g, ' M')
-      .replace(/\L/g, ' L');
-    console.log(encodeArr);
-    encodeArr = encodeArr.split(' ');
-    // console.log(encodeArr);
+    if (!code) return ""; // Handle empty or null input
+    var romanParts = [];
+    var currentRomanPart = "";
+
+    for (var i = 0; i < code.length; i++) {
+      var char = code[i];
+      if (currentRomanPart === "") {
+        currentRomanPart += char;
+      } else if (/[A-Z]/.test(char)) { // Check if char is an uppercase letter
+        romanParts.push(currentRomanPart);
+        currentRomanPart = char;
+      } else {
+        currentRomanPart += char;
+      }
+    }
+    if (currentRomanPart) { // Push the last part if it exists
+      romanParts.push(currentRomanPart);
+    }
+
     var txt = "";
-    $.each(encodeArr, function (i, val) {
-      // console.log(val);
-      if (val != '') {
-        for (let index = 0; index < val.length; index++) {
-          var isHex = fromRoman(val.toUpperCase());
-          isHex = String.fromCharCode(isHex);
-        }
-        txt += isHex;
-      }
-      if (val == "") {
+    for (var j = 0; j < romanParts.length; j++) {
+      var part = romanParts[j];
+      if (part === "Xxxii") {
         txt += " ";
+      } else {
+        // Ensure part is not empty before calling fromRoman, though current logic should prevent empty parts.
+        if (part) { 
+          let decimalVal = fromRoman(part.toUpperCase());
+          txt += String.fromCharCode(decimalVal);
+        }
       }
-    });
+    }
     return txt;
   }
 
   function dzx_encode(str) {
     var toEncode = '';
+    if (!str) return ""; // Handle empty or null input
+
     for (let i = 0; i < str.length; i++) {
-      var to_asscii = str[i].toUpperCase().charCodeAt(0);
-      console.log('to_asscii + ' + to_asscii);
-      var toDZX = toRoman(to_asscii);
-      console.log('toDZX ' + toDZX);
+      if (str[i] === ' ') {
+        toEncode += "Xxxii";
+      } else {
+        var to_asscii = str[i].toUpperCase().charCodeAt(0);
+        // Ensure to_asscii is a valid number for toRoman
+        if (isNaN(to_asscii)) continue; // Skip if not a valid character code
 
+        var toDZX = toRoman(to_asscii);
+        if (toDZX === null || typeof toDZX === 'undefined') continue; // Skip if toRoman returns invalid
 
-      toDZX = toDZX.toLowerCase();
-      toDZX = toDZX.charAt(0).toUpperCase() + toDZX.slice(1);
-      toEncode += toDZX;
-      if (toDZX == "") {
-        toEncode += " ";
+        toDZX = toDZX.toLowerCase();
+        if (toDZX.length > 0) {
+          toDZX = toDZX.charAt(0).toUpperCase() + toDZX.slice(1);
+        } else {
+          // This case should ideally not be reached if toRoman works correctly
+          // and input str[i] is a typical character.
+          // However, if toRoman could return empty for some valid ASCII,
+          // this would prevent an error on charAt(0) of empty string.
+          continue; 
+        }
+        toEncode += toDZX;
       }
     }
     return toEncode;
-
   }
-
 
   $('#decode').keypress(function (e) {
     if (e.which == 13) {
@@ -193,9 +211,7 @@
   });
   $('#dec').click(function () {
     var de = $('#decode').val();
-    // console.log(enc);
     $('.decode-output').text(dzx_decode(de));
-
   })
 
   $('#encode').keypress(function (e) {
@@ -205,24 +221,69 @@
   });
   $('#gen').click(function () {
     var enc = $('#encode').val();
-    // console.log(enc);
     $('.encode-output').text(dzx_encode(enc));
-
   })
 
   $('.arrow-decode').click(function(){
-    console.log('decode')
     $('#decode').val($('.encode-output').text());
     $('#dec').click();
   });
 
   $('.arrow-encode').click(function(){
-    console.log('encode')
     $('#encode').val($('.decode-output').text());
     $('#gen').click();
   });
 
+  function runTests() {
+    console.log("Running automated tests...");
 
+    // Test Case 1: "Darkxee" (no space)
+    let encoded1 = dzx_encode("Darkxee");
+    let expectedEncoded1 = "LxviiiLxvLxxxiiLxxvLxxxviiiLxixLxix";
+    let decoded1 = dzx_decode(expectedEncoded1);
+    console.log("Test 1 - Encode 'Darkxee':", encoded1 === expectedEncoded1 ? "PASS" : "FAIL", "Expected:", expectedEncoded1, "Got:", encoded1);
+    console.log("Test 1 - Decode back:", decoded1 === "Darkxee" ? "PASS" : "FAIL", "Expected:", "Darkxee", "Got:", decoded1);
+
+    // Test Case 2: "Darkxee " (with space)
+    let encoded2 = dzx_encode("Darkxee ");
+    let expectedEncoded2 = "LxviiiLxvLxxxiiLxxvLxxxviiiLxixLxixXxxii";
+    let decoded2 = dzx_decode(expectedEncoded2);
+    console.log("Test 2 - Encode 'Darkxee ':", encoded2 === expectedEncoded2 ? "PASS" : "FAIL", "Expected:", expectedEncoded2, "Got:", encoded2);
+    console.log("Test 2 - Decode back:", decoded2 === "Darkxee " ? "PASS" : "FAIL", "Expected:", "Darkxee ", "Got:", decoded2);
+
+    // Test Case 3: "Hello World"
+    let encoded3 = dzx_encode("Hello World");
+    let expectedEncoded3 = "LxxiiLxixLxxviLxxviLxxixXxxiiLxxxviiLxxixLxxxiiLxxviLxviii";
+    let decoded3 = dzx_decode(expectedEncoded3);
+    console.log("Test 3 - Encode 'Hello World':", encoded3 === expectedEncoded3 ? "PASS" : "FAIL", "Expected:", expectedEncoded3, "Got:", encoded3);
+    console.log("Test 3 - Decode back:", decoded3 === "Hello World" ? "PASS" : "FAIL", "Expected:", "Hello World", "Got:", decoded3);
+
+    // Test Case 4: Empty String ""
+    let encoded4 = dzx_encode("");
+    let decoded4 = dzx_decode("");
+    console.log("Test 4 - Encode '':", encoded4 === "" ? "PASS" : "FAIL", "Expected:", "\"\"", "Got:", encoded4);
+    console.log("Test 4 - Decode '':", decoded4 === "" ? "PASS" : "FAIL", "Expected:", "\"\"", "Got:", decoded4);
+
+    // Test Case 5: "   " (three spaces)
+    let encoded5 = dzx_encode("   ");
+    let expectedEncoded5 = "XxxiiXxxiiXxxii";
+    let decoded5 = dzx_decode(expectedEncoded5);
+    console.log("Test 5 - Encode '   ':", encoded5 === expectedEncoded5 ? "PASS" : "FAIL", "Expected:", expectedEncoded5, "Got:", encoded5);
+    console.log("Test 5 - Decode back:", decoded5 === "   " ? "PASS" : "FAIL", "Expected:", "\"   \"", "Got:", decoded5);
+
+    // Test Case 6: Mixed Case "TeSt"
+    // dzx_encode converts input to uppercase before getting charCodeAt, so "TeSt" becomes "TEST" effectively.
+    let encoded6 = dzx_encode("TeSt"); 
+    let expectedEncoded6 = "LxxxivLxixLxxxiiiLxxxiv"; // Roman for "TEST"
+    let decoded6 = dzx_decode(expectedEncoded6);
+    console.log("Test 6 - Encode 'TeSt':", encoded6 === expectedEncoded6 ? "PASS" : "FAIL", "Expected:", expectedEncoded6, "Got:", encoded6);
+    // Decoding "LxxxivLxixLxxxiiiLxxxiv" should result in "TEST" because fromRoman gives ASCII for uppercase chars.
+    console.log("Test 6 - Decode back to 'TEST':", decoded6 === "TEST" ? "PASS" : "FAIL", "Expected:", "TEST", "Got:", decoded6);
+
+    console.log("Finished automated tests.");
+  }
+
+  runTests();
 
 </script>
 
